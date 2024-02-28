@@ -1,0 +1,312 @@
+import 'package:challenger/create_item.dart';
+import 'package:flutter/material.dart';
+import 'package:challenger/library_provider.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:challenger/main.dart';
+import 'dart:convert' show json;
+
+class LibraryPage extends StatelessWidget {
+  const LibraryPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final libProvider = Provider.of<LibraryProvider>(context, listen: false);
+    libProvider.init();
+    libProvider.fetch();
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Wrap(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        onChanged: (value) => libProvider.runSearch(value),
+                        decoration: const InputDecoration(
+                            labelText: 'Search',
+                            suffixIcon: Icon(Icons.search)),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        // Navigate to the second page when the button is pressed
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CreateItem()),
+                        );
+                      },
+                      icon: Icon(Icons.add),
+                    )
+                  ],
+                ),
+                ChoiceChip(
+                  label: Text("filter"),
+                  selected: false,
+                  onSelected: (value) {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Wrap(
+                            children: [
+                              InkWell(
+                                child: const ListTile(
+                                  leading: Icon(Icons.share),
+                                  title: Text('Барлығы'),
+                                ),
+                                onTap: () {
+                                  libProvider.runFilter('');
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              InkWell(
+                                child: const ListTile(
+                                  leading: Icon(Icons.share),
+                                  title: Text('Көркем Әдебиет'),
+                                ),
+                                onTap: () {
+                                  libProvider.runFilter('Көркем Әдебиет');
+
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              InkWell(
+                                child: const ListTile(
+                                  leading: Icon(Icons.share),
+                                  title: Text('Балалар Әдебиеті'),
+                                ),
+                                onTap: () {
+
+                                 // _runFilter('Балалар Әдебиеті');
+
+
+                                 import 'dart:convert';
+                                 import 'package:flutter/material.dart';
+                                 import 'package:challenger/library_page.dart';
+                                 import 'package:flutter/services.dart';
+
+                                 class LibraryProvider extends ChangeNotifier {
+                                   List<Book> bookList = [];
+
+                                   Future<void> fetch() async {
+                                     try {
+                                       String jsonString = await rootBundle.loadString('assets/data.json');
+                                       List<dynamic> jsonData = json.decode(jsonString);
+
+                                       bookList = jsonData.map((item) => Book.fromJson(item)).toList();
+                                     } catch (e) {
+                                       print('Error loading JSON: $e');
+                                     }
+                                   }
+
+                                   List<Book> foundBooks = [];
+
+                                   void init() {
+                                     foundBooks = bookList;
+                                     print('init');
+                                   }
+
+                                   List<Book> get books => foundBooks;
+                                   String _searchString = "";
+
+                                   // UnmodifiableListView<Book> get books => _searchString.isEmpty
+                                   //     ? UnmodifiableListView(_bookList)
+                                   //     : UnmodifiableListView(_bookList.where((book) =>
+                                   //         book.category.toLowerCase().contains(_searchString.toLowerCase()) ||
+                                   //         book.category.toLowerCase().contains(_searchString.toLowerCase())));
+
+                                   void changeSearchAndFilterString2(String searchString) {
+                                     _searchString = searchString;
+                                     notifyListeners();
+                                   }
+
+                                   void runFilter(String category) {
+                                     List<Book> results = [];
+                                     if (category.isEmpty) {
+                                       results = bookList;
+                                     } else {
+                                       results = bookList
+                                           .where((book) =>
+                                               book.category.toLowerCase().contains(category.toLowerCase()))
+                                           .toList();
+                                     }
+
+                                     foundBooks = results;
+                                     notifyListeners();
+                                   }
+
+                                   void runSearch(String enteredKeyword) {
+                                     List<Book> results = [];
+                                     if (enteredKeyword.isEmpty) {
+                                       results = bookList;
+                                     } else {
+                                       results = bookList
+                                           .where((book) =>
+                                               book.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
+                                           .toList();
+                                     }
+
+                                     foundBooks = results;
+                                     notifyListeners();
+                                   }
+                                 }
+
+                                 class Book {
+                                   final String title;
+                                   final String author;
+                                   final String category;
+                                   final String uri;
+
+                                   Book({
+                                     required this.title,
+                                     required this.author,
+                                     required this.category,
+                                     required this.uri,
+                                   });
+
+                                   factory Book.fromJson(Map<String, dynamic> json) {
+                                     return Book(
+                                       title: json['title'],
+                                       author: json['author'],
+                                       category: json['category'],
+                                       uri: json['uri'],
+                                     );
+                                   }
+
+
+             libProvider.runFilter('Көркем Әдебиет');
+                                               Navigator.pop(context);
+                                             },
+                                           ),
+                                           InkWell(
+                                             child: const ListTile(
+                                               leading: Icon(Icons.share),
+                                               title: Text('Отбасы'),
+                                             ),
+                                             onTap: () {
+                                               libProvider.runFilter('Отбасы');
+                                               Navigator.pop(context);
+                                             },
+                                           ),
+                                           InkWell(
+                                             child: const ListTile(
+                                               leading: Icon(Icons.copy),
+                                               title: Text('Оқу'),
+                                             ),
+                                             onTap: () {
+                                               libProvider.runFilter('Оқу');
+                                               Navigator.pop(context);
+                                             },
+                                           ),
+                                           InkWell(
+                                             child: const ListTile(
+                                               leading: Icon(Icons.paste),
+                                               title: Text('Әртүрлі'),
+                                             ),
+                                             onTap: () {
+                                               libProvider.runFilter('Әртүрлі');
+                                               Navigator.pop(context);
+                                             },
+                                           ),
+                                         ],
+                                       );
+                                     });
+                               },
+                             ),
+                             ChoiceChip(
+                               label: Text("getData"),
+                               selected: false,
+                               onSelected: (value) {
+                                 // getData();
+                               },
+                             ),
+                           ],
+                         ),
+                         const SizedBox(
+                           height: 20,
+                         ),
+                         Consumer<LibraryProvider>(builder: (context, data, child) {
+                           return Expanded(
+                             child: data.books.isNotEmpty
+                                 ? BookList(bookList: data.books)
+                                 : const Text(
+                                     'No results found',
+                                     style: TextStyle(fontSize: 24),
+                                   ),
+                           );
+                         }),
+                       ],
+                     ),
+                   ),
+                 );
+               }
+             }
+
+             class BookList extends StatefulWidget {
+               final List<Book> bookList;
+               const BookList({super.key, required this.bookList});
+
+               @override
+               State<BookList> createState() => _BookListState();
+             }
+
+             class _BookListState extends State<BookList> {
+               List<dynamic> dataList = [];
+
+               @override
+               void initState() {
+                 super.initState();
+                 _loadData(); // Load data when the widget is initialized
+               }
+
+               Future<void> _loadData() async {
+                 try {
+                   // Read the JSON file
+                   String jsonString = await rootBundle.loadString('assets/data.json');
+
+                   // Parse the JSON
+                   final jsonData = json.decode(jsonString);
+
+                   // Update the state with the loaded data
+                   setState(() {
+                     dataList = jsonData;
+                   });
+                 } catch (e) {
+                   print('Error loading JSON: $e');
+                 }
+               }
+
+               @override
+               Widget build(BuildContext context) {
+                 return ListView.builder(
+                     shrinkWrap: true,
+                     itemCount: widget.bookList.length,
+                     itemBuilder: (context, index) => Card(
+                           elevation: 3,
+                           child: Padding(
+                             padding: EdgeInsets.all(10),
+                             child: ListTile(
+                               title: Text(
+                                 widget.bookList[index].title,
+                                 maxLines: 2,
+                                 style: const TextStyle(
+                                   fontSize: 20,
+                                 ),
+                               ),
+                               leading: const Icon(
+                                 Icons.book,
+                                 size: 50,
+                               ),
+                               trailing: const Text("Read"),
+                             ),
+                           ),
+                         ));
+               }
+             }
